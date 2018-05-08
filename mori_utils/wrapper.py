@@ -41,7 +41,6 @@ def m_wrap(log: bool = True,
                     md5.update(f'{been_cache_args}-{been_cache_kwargs}'.encode('utf8'))
                     cache_file_name = f'{cache_file_name}.{md5.hexdigest()[8:-8]}'
                 # update cache file name
-                print(cache_file_name)
                 cache_file_name = f'{cache_file_name}.cache'
 
                 # check cache file exists

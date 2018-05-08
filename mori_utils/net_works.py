@@ -22,6 +22,7 @@ __all__ = [
     'DubboParamInstance'
 ]
 
+
 def set_dubbo_decode(decode: str):
     global __decode_fmt__
     __decode_fmt__ = decode

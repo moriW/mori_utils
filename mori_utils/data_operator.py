@@ -23,7 +23,9 @@ __all__ = [
     'query_mongo',
     'query_odps',
     'get_mysql_db_name',
-    'get_zookeeper_host'
+    'get_zookeeper_host',
+    'conn_mysql',
+    'conn_mongo'
 ]
 
 
@@ -161,3 +163,7 @@ def execute_mysql(config_name: str, sql: str) -> int:
                 effect_row = cursor.lastrowid
         conn.commit()
     return effect_row
+
+
+conn_mysql = __get_mysql_connection__
+conn_mongo = __get_mongo_connection__

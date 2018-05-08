@@ -16,6 +16,7 @@ __version__ = (0, 4, 2)
 __author__ = "Mori <moridisa@moridisa.cn>"
 __status__ = "snapshot"
 __date__ = '2018/4/24'
+__all__ = []
 
 from .data_operator import *
 from .net_works import *
@@ -29,9 +30,10 @@ try:
     logger = gen_logger(f'{__package__}')
     logger.info('mori_utils standby')
 except Exception as e:
-    pass
+    print(e)
+    print('Mori Utils Load Failed')
 
-__all__ = []
+__all__ += ['FILE_ROOT', 'LOG_PATH', 'CACHE_PATH', 'CONFIG_PATH']
 __all__ += data_operator.__all__
 __all__ += net_works.__all__
 __all__ += wrapper.__all__

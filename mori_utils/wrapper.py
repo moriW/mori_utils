@@ -30,7 +30,6 @@ def m_wrap(log: bool = True,
             if log:
                 logger.info(f'{func.__module__}.{func.__name__} - Start')
 
-            data = None
             if cache:
                 cache_file_name = os.path.join(CACHE_PATH, f'{func.__module__}.{func.__name__}')
 
@@ -39,9 +38,10 @@ def m_wrap(log: bool = True,
                     been_cache_args = [args[i] for i in cache_args if isinstance(i, int)]
                     been_cache_kwargs = [kwargs[i] for i in cache_args if isinstance(i, str)]
                     md5 = hashlib.md5()
-                    md5.update(f'{been_cache_args}-{been_cache_kwargs}')
-                    cache_file_name = f'{cache_file_name}.{md5.hexdiget()}'
+                    md5.update(f'{been_cache_args}-{been_cache_kwargs}'.encode('utf8'))
+                    cache_file_name = f'{cache_file_name}.{md5.hexdigest()[8:-8]}'
                 # update cache file name
+                print(cache_file_name)
                 cache_file_name = f'{cache_file_name}.cache'
 
                 # check cache file exists
@@ -56,6 +56,10 @@ def m_wrap(log: bool = True,
                     else:
                         data = func(*args, **kwargs)
                         pickle.dump(data, open(cache_file_name, 'wb'))
+                else:
+                    data = func(*args, **kwargs)
+                    pickle.dump(data, open(cache_file_name, 'wb'))
+
             else:
                 data = func(*args, **kwargs)
 

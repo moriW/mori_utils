@@ -68,6 +68,7 @@ def load_config(root_path: str):
                 sub_config['host'] = host
                 sub_config['port'] = port
                 sub_config['db'] = db
+                sub_config.pop('need_mysql_extract')
                 config[k] = sub_config
         __GLOBAL_CONFIGS__.update(config)
         # logger.info(f"{__GLOBAL_CONFIGS__}")

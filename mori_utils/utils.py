@@ -42,6 +42,9 @@ def gen_logger(logger_name: str) -> logging.Logger:
     return logger
 
 
+logger = gen_logger(__name__)
+
+
 def load_config(root_path: str):
     """
     load all config files
@@ -50,9 +53,25 @@ def load_config(root_path: str):
     """
 
     for file in filter(lambda x: x.endswith('.yaml'), os.listdir(root_path)):
-        logging.info('Read Config From config, %s' % file)
+        logger.info('Read Config From %s, %s' % (root_path, file))
         config = yaml.load(open(os.path.join(root_path, file), 'r'))
+        logger.info(f"{config}")
+        for k in config:
+            sub_config = config[k]
+            if sub_config.get('need_mysql_extract', None) is not None:
+                logger.info(f"{k} need mysql extract")
+                host = sub_config['host']
+                host = host.replace('jdbc:mysql://', '')
+                host, db = host.split('/')
+                db = db.split('?')[0]
+                host, port = host.split(':')
+                sub_config.pop('host')
+                sub_config['host'] = host
+                sub_config['port'] = port
+                sub_config['db'] = db
+                config[k] = sub_config
         __GLOBAL_CONFIGS__.update(config)
+        # logger.info(f"{__GLOBAL_CONFIGS__}")
 
 
 def read_config(config_name: str) -> Dict[str, str]:

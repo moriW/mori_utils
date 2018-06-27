@@ -55,7 +55,6 @@ def load_config(root_path: str):
     for file in filter(lambda x: x.endswith('.yaml'), os.listdir(root_path)):
         logger.info('Read Config From %s, %s' % (root_path, file))
         config = yaml.load(open(os.path.join(root_path, file), 'r'))
-        logger.info(f"{config}")
         for k in config:
             sub_config = config[k]
             if sub_config.get('need_mysql_extract', None) is not None:

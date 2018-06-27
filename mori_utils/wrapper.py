@@ -23,7 +23,9 @@ __all__ = ['m_wrap']
 def m_wrap(log: bool = True,
            cache: bool = True,
            cache_expire: float = None,
-           *cache_args):
+           prefix: str = None,
+           suffix: str = None,
+           cache_args: List = None):
     def wrapper(func):
         @wraps(func)
         def __inner_wrapper__(*args, **kwargs):
@@ -31,7 +33,12 @@ def m_wrap(log: bool = True,
                 logger.info(f'{func.__module__}.{func.__name__} - Start')
 
             if cache:
-                cache_file_name = os.path.join(CACHE_PATH, f'{func.__module__}.{func.__name__}')
+                cache_file_name = f'{func.__module__}.{func.__name__}'
+                if prefix:
+                    cache_file_name = prefix + '_' + cache_file_name
+                if suffix:
+                    cache_file_name = cache_file_name + '_' + suffix
+                cache_file_name = os.path.join(CACHE_PATH, cache_file_name)
 
                 # check args & kwargs
                 if len(cache_args) > 0:
@@ -41,6 +48,7 @@ def m_wrap(log: bool = True,
                     md5.update(f'{been_cache_args}-{been_cache_kwargs}'.encode('utf8'))
                     cache_file_name = f'{cache_file_name}.{md5.hexdigest()[8:-8]}'
                 # update cache file name
+
                 cache_file_name = f'{cache_file_name}.cache'
 
                 # check cache file exists

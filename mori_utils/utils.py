@@ -66,7 +66,7 @@ def load_config(root_path: str):
                 host, port = host.split(':')
                 sub_config.pop('host')
                 sub_config['host'] = host
-                sub_config['port'] = port
+                sub_config['port'] = int(port)
                 sub_config['db'] = db
                 sub_config.pop('need_mysql_extract')
                 config[k] = sub_config

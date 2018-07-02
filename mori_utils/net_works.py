@@ -60,6 +60,7 @@ def __write_to_dubbo__(tn: telnetlib.Telnet, cmd: str):
 
 def __read_from_dubbo__(tn: telnetlib.Telnet):
     total_content = tn.read_until('dubbo>'.encode(__decode_fmt__), 2).decode(__decode_fmt__)
+    print(total_content)
     total_content = total_content.split('dubbo>')[0]
     return total_content.split('elapsed:')[0]
 
@@ -103,10 +104,18 @@ class DubboParamInstance:
         :param kwargs: 参数值
         """
         self.param = {'class': class_name}
+        for k in kwargs:
+            if isinstance(kwargs[k], dict):
+                kwargs[k] = json.dumps(kwargs[k])
+            elif isinstance(kwargs[k], list):
+                kwargs[k] = json.dumps(kwargs[k])
         self.param.update(kwargs)
 
     def __str__(self):
         return json.dumps(self.param)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 def invoke_dubbo(service: str, method: str, config_name: str, args: Iterable, decode_charset='gbk'):
@@ -125,6 +134,8 @@ def invoke_dubbo(service: str, method: str, config_name: str, args: Iterable, de
     # telnet connect to dubbo service
     host, port = __read_dubbo_host_port__(service, config_name)
     tn = telnetlib.Telnet(host=host, port=int(port))
+
+    print(host, port)
 
     # send command line
     __write_to_dubbo__(tn, f'ls -l {service}')
@@ -159,7 +170,9 @@ def invoke_dubbo(service: str, method: str, config_name: str, args: Iterable, de
             args[i] = default_args[i]
         elif isinstance(args[i], bool):
             args[i] = 'true' if args[i] else 'false'
+
     formated_args = ','.join([f'"{x}"' if args.index(x) in args_string_indexs else str(x) for x in args])
+    print(f'invoke {service}.{method}({formated_args})')
     __write_to_dubbo__(tn, f'invoke {service}.{method}({formated_args})')
     result = __read_from_dubbo__(tn)
     try:

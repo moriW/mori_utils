@@ -41,7 +41,7 @@ def m_wrap(log: bool = True,
                 cache_file_name = os.path.join(CACHE_PATH, cache_file_name)
 
                 # check args & kwargs
-                if len(cache_args) > 0:
+                if cache_args is not None and len(cache_args) > 0:
                     been_cache_args = [args[i] for i in cache_args if isinstance(i, int)]
                     been_cache_kwargs = [kwargs[i] for i in cache_args if isinstance(i, str)]
                     md5 = hashlib.md5()

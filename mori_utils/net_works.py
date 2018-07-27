@@ -135,8 +135,6 @@ def invoke_dubbo(service: str, method: str, config_name: str, args: Iterable, de
     host, port = __read_dubbo_host_port__(service, config_name)
     tn = telnetlib.Telnet(host=host, port=int(port))
 
-    print(host, port)
-
     # send command line
     __write_to_dubbo__(tn, f'ls -l {service}')
 
@@ -159,6 +157,8 @@ def invoke_dubbo(service: str, method: str, config_name: str, args: Iterable, de
             default_args.append(0.0)
         elif '[]' in i:
             default_args.append([])
+        elif i == '':
+            default_args.append('')
         else:
             default_args.append('null')
 

@@ -12,10 +12,10 @@ LOG_PATH = os.path.join(FILE_ROOT, 'log')
 CACHE_PATH = os.path.join(FILE_ROOT, 'caches')
 CONFIG_PATH = os.path.join(FILE_ROOT, 'config')
 
-__version__ = (0, 4, 2)
+__version__ = (0, 5, 3)
 __author__ = "Mori <moridisa@moridisa.cn>"
 __status__ = "snapshot"
-__date__ = '2018/4/24'
+__date__ = '2018/8/17'
 __all__ = []
 
 from .data_operator import *

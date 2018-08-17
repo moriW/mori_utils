@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mori_utils',
-    version='0.5.2',
+    version='0.5.3',
     description='Mori Personal Utils',
     author='moridisa',
     author_email='moridisa@moridisa.cn',

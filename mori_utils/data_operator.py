@@ -25,7 +25,8 @@ __all__ = [
     'get_mysql_db_name',
     'get_zookeeper_host',
     'conn_mysql',
-    'conn_mongo'
+    'conn_mongo',
+    'conn_odps'
 ]
 
 
@@ -165,5 +166,6 @@ def execute_mysql(config_name: str, sql: str) -> int:
     return effect_row
 
 
+conn_odps = __get_odps_connection__
 conn_mysql = __get_mysql_connection__
 conn_mongo = __get_mongo_connection__

@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mori_utils',
-    version='0.5.3',
+    version='0.5.5',
     description='Mori Personal Utils',
     author='moridisa',
     author_email='moridisa@moridisa.cn',
@@ -23,6 +23,7 @@ setup(
         'pymysql',
         'pyodps',
         'kazoo',
-        'pyyaml'
+        'pyyaml',
+        'redis'
     ],
 )

@@ -12,9 +12,6 @@ from typing import Iterable, Dict, Tuple
 from .data_operator import get_zookeeper_host
 from kazoo.client import KazooClient
 
-brackets_match = re.compile('\(|\)')
-__decode_fmt__ = 'gbk'
-
 __all__ = [
     'set_dubbo_decode',
     'format_return_data',
@@ -22,22 +19,28 @@ __all__ = [
     'DubboParamInstance'
 ]
 
+brackets_match = re.compile('\(|\)')
+__decode_fmt__ = 'gbk'
+
 
 def set_dubbo_decode(decode: str):
+    """
+    set decode format
+
+    :param decode: decode name
+    """
     global __decode_fmt__
     __decode_fmt__ = decode
 
 
 def format_return_data(data: Iterable, count: int = None, msg: str = None, status: bool = True) -> Dict:
     """
-    格式化报文
+    format response message for http
 
-    format response message
-
-    :param data: 数据
-    :param count: 数据长度
-    :param msg: 消息
-    :param status: 状态
+    :param data: data
+    :param count: len of data
+    :param msg: message
+    :param status: success / fail
     """
     data = {
         'count': len(list(data)),
@@ -51,21 +54,33 @@ def format_return_data(data: Iterable, count: int = None, msg: str = None, statu
     return data
 
 
-def __write_to_dubbo__(tn: telnetlib.Telnet, cmd: str):
+def __write_to_dubbo(tn: telnetlib.Telnet, cmd: str):
+    """
+    write command to dubbo by telnet client
+
+    :param tn: telnet client
+    :param cmd: command
+    """
     decode_cmd = cmd.encode(__decode_fmt__)
     decode_cmd += b'\n'
+
     logging.info(decode_cmd)
     tn.write(decode_cmd)
 
 
-def __read_from_dubbo__(tn: telnetlib.Telnet):
+def __read_from_dubbo(tn: telnetlib.Telnet) -> str:
+    """
+    read feedback from dubbo telnet
+
+    :param tn: telnet client
+    :return: content
+    """
     total_content = tn.read_until('dubbo>'.encode(__decode_fmt__), 2).decode(__decode_fmt__)
-    print(total_content)
     total_content = total_content.split('dubbo>')[0]
     return total_content.split('elapsed:')[0]
 
 
-def __read_dubbo_host_port__(service: str, config_name: str) -> Tuple[str, str]:
+def __read_dubbo_host_port(service: str, config_name: str) -> Tuple[str, str]:
     """
     从zookeeper 获取 dubbo地址和端口 --- author: Tatum (塔叔❤️)
 
@@ -91,17 +106,15 @@ def __read_dubbo_host_port__(service: str, config_name: str) -> Tuple[str, str]:
 
 class DubboParamInstance:
     """
-    dubbo 接口传递对象
+    dubbo parameter instance
     """
 
     def __init__(self, class_name: str, **kwargs):
         """
-        创建一个dubbo中的接口需要的对象参数
-
         create a instance for dubbo api instance param
 
-        :param class_name: 参数类名
-        :param kwargs: 参数值
+        :param class_name: class name of parameter
+        :param kwargs: data
         """
         self.param = {'class': class_name}
         for k in kwargs:
@@ -120,26 +133,26 @@ class DubboParamInstance:
 
 def invoke_dubbo(service: str, method: str, config_name: str, args: Iterable, decode_charset='gbk'):
     """
-    调用dubbo 接口
-
     call dubbo api
 
-    :param service: 服务
-    :param method: 方法
-    :param config_name: 配置名
-    :param decode_charset: 解码方式
-    :param args: 参数(目前还不支持按名赋值)
-    :return: 结果
+    调用dubbo 接口
+
+    :param service: service name
+    :param method: method name
+    :param config_name: config in yaml for zookeeper
+    :param decode_charset: gbk
+    :param args: data
+    :return: result
     """
     # telnet connect to dubbo service
-    host, port = __read_dubbo_host_port__(service, config_name)
+    host, port = __read_dubbo_host_port(service, config_name)
     tn = telnetlib.Telnet(host=host, port=int(port))
 
     # send command line
-    __write_to_dubbo__(tn, f'ls -l {service}')
+    __write_to_dubbo(tn, f'ls -l {service}')
 
     # read from telnet
-    content = __read_from_dubbo__(tn)
+    content = __read_from_dubbo(tn)
     target_method_info = next(filter(lambda x: ' ' + method + '(' in x, content.split('\r\n')))
     pure_args_for_method = re.sub(r'\(|\)', '', target_method_info.split(method)[1]).split(',')
 
@@ -172,9 +185,8 @@ def invoke_dubbo(service: str, method: str, config_name: str, args: Iterable, de
             args[i] = 'true' if args[i] else 'false'
 
     formated_args = ','.join([f'"{x}"' if args.index(x) in args_string_indexs else str(x) for x in args])
-    print(f'invoke {service}.{method}({formated_args})')
-    __write_to_dubbo__(tn, f'invoke {service}.{method}({formated_args})')
-    result = __read_from_dubbo__(tn)
+    __write_to_dubbo(tn, f'invoke {service}.{method}({formated_args})')
+    result = __read_from_dubbo(tn)
     try:
         return json.loads(result, encoding=decode_charset)
     except Exception as e:

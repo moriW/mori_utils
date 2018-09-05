@@ -42,7 +42,7 @@ def m_wrap(log: bool = True,
                 cache_file_name = os.path.join(CACHE_PATH, cache_file_name)
 
                 # check args & kwargs
-                if len(args) > 0 or len(kwargs) > 0 and cache_args_enable:
+                if (len(args) > 0 or len(kwargs) > 0) and cache_args_enable:
                     if cache_args is not None and (len(cache_args) > 0 or len(cache_kwargs) > 0):
                         if cache_args:
                             been_cache_args = list(map(args.__getitem__,

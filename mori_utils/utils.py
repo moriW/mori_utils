@@ -66,7 +66,7 @@ class MailHandler(logging.Handler):
         smtp.sendmail(self.mail_config['sender_username'], self.mail_config['reciver'].split(';'), content.as_string())
 
 
-def gen_logger(logger_name: str, mail_config: str = None) -> logging.Logger:
+def gen_logger(logger_name: str, mail_config: str = None, write_to_file: bool = False) -> logging.Logger:
     """
     generator a logger
 
@@ -75,25 +75,35 @@ def gen_logger(logger_name: str, mail_config: str = None) -> logging.Logger:
     :return: logger
     """
 
+    # get logger by name
     logger = logging.getLogger(logger_name)
+
+    logging_format = logging.Formatter(f'{logger_name} - %(asctime)s - %(levelname)s : %(message)s',
+                                       '%Y-%m-%d %H:%M:%S')
+    # init logger
     if len(logger.handlers) == 0:
         logger.propagate = False
-        logging_format = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s', '%Y-%m-%d %H:%M:%S')
 
-        file_log = logging.FileHandler(os.path.join(LOG_PATH, f'{logger_name}.log'))
         console_log = logging.StreamHandler(sys.stdout)
-
-        file_log.setFormatter(logging_format)
         console_log.setFormatter(logging_format)
 
         logger.setLevel(logging.INFO)
-
-        logger.addHandler(file_log)
         logger.addHandler(console_log)
+
+    # write file
+    if write_to_file:
+        file_log = logging.FileHandler(os.path.join(LOG_PATH, f'{logger_name}.log'))
+        file_log.setFormatter(logging_format)
+        logger.addHandler(file_log)
+
+    # send_mail
     if mail_config is not None:
         arg_check(arg_check(mail_config,
                             ['sender_url', 'sender_port', 'sender_username', 'sender_password', 'reciver']))
-        logger.addHandler(MailHandler(read_config(mail_config)))
+        mail_log = MailHandler(read_config(mail_config))
+        mail_log.setFormatter(logging_format)
+        logger.addHandler(mail_log)
+
     return logger
 
 
